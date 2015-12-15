@@ -1,22 +1,8 @@
 svg {
-	background: #7d949b;
+	background: #2b444c;
   	border:solid black 1px;
 }
-
-/*.world {
-    stroke: black;
-    stroke-width: 0.3;
-}*/
-
-/*.country {
-    fill: white;
-    stroke: black;
-    stroke-width: 0.1;
-}*/
-
 .country {
-    /*fill: steelblue;*/
-    fill: #a0b5bb;
     stroke: white;
-    stroke-width: 0.6;
+    stroke-width: 0.5;
 }
