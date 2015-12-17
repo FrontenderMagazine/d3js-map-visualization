@@ -1,5 +1,6 @@
 window.onload = function () {
-    var width, height, svg, defColor, colorSet, path, attributeArray = [],
+    var width, height, svg, path, attributeArray = [],
+        colors, defColor, getColor,
         currentAttribute = 0,
         playing = false;
 
@@ -15,24 +16,26 @@ window.onload = function () {
             .attr('width', width)
             .attr('height', height);
 
-        colors = [ // theguardian
-            "#ca2345",
-            "#ed3d61",
-            "#f58680",
-            "#fdd09e",
-            "#daeac1",
-            "#8ac7cd",
-            "#39a4d8"];
-        // colors = [
-        //     '#990000',
-        //     '#d7301f',
-        //     '#ef6548',
-        //     '#fc8d59',
-        //     '#fdbb84',
-        //     '#fdd49e',
-        //     '#fef0d9',
-        //     ];
+        // colors = [ // theguardian
+        //     "#ca2345",
+        //     "#ed3d61",
+        //     "#f58680",
+        //     "#fdd09e",
+        //     "#daeac1",
+        //     "#8ac7cd",
+        //     "#39a4d8"];
+        colors = [
+            '#990000',
+            '#d7301f',
+            '#ef6548',
+            '#fc8d59',
+            '#fdbb84',
+            '#fdd49e',
+            '#fef0d9',
+            ];
         defColor = '#a0b5bb';
+
+        getColor = d3.scale.quantize().domain([100,0]).range(colors);
 
         // получение GeoJSON из TopoJSON (TopoJSON -> GeoJSON)
         // var world = topojson.feature(worldmap, worldmap.objects.world);
@@ -160,35 +163,11 @@ window.onload = function () {
 
         d3.selectAll('.country')
             .style('fill', function(d) {
-                return getColor(d.properties[attributeArray[currentAttribute]]);
+                color = getColor(d.properties[attributeArray[currentAttribute]]);
+                return color ? color : defColor;
             });
 
         addLegend();
-    }
-
-    function getColor(n) {
-        var color = defColor;
-        if ( Number.isInteger(n) ) {
-            if (83 < n && n <= 100) {
-                color = colors[0];
-            } else if (49 < n && n <= 83) {
-                color = colors[1];
-            } else if (41 < n && n <= 49) {
-                color = colors[2];
-            } else if (33 < n && n <= 41) {
-                color = colors[3];
-            } else if (25 < n && n <= 33) {
-                color = colors[4];
-            } else if (17 < n && n <= 25) {
-                color = colors[5];
-            } else if (0 <= n && n <= 17) {
-                color = colors[6];
-            } else {
-                return defColor;
-            }
-        }
-
-        return color;
     }
 
     function animateMap() {
@@ -219,7 +198,8 @@ window.onload = function () {
         d3.selectAll('.country').transition()
             .duration(0)
             .style('fill', function(d) {
-                return getColor(d.properties[attributeArray[currentAttribute]]);
+                color = getColor(d.properties[attributeArray[currentAttribute]]);
+                return color ? color : defColor;
             });
     }
 
