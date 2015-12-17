@@ -24,16 +24,29 @@ window.onload = function () {
         //     "#daeac1",
         //     "#8ac7cd",
         //     "#39a4d8"];
+        // colors = [
+        //     '#990000',
+        //     '#d7301f',
+        //     '#ef6548',
+        //     '#fc8d59',
+        //     '#fdbb84',
+        //     '#fdd49e',
+        //     '#fef0d9',
+        //     ];
         colors = [
-            '#990000',
-            '#d7301f',
-            '#ef6548',
-            '#fc8d59',
-            '#fdbb84',
-            '#fdd49e',
-            '#fef0d9',
-            ];
-        defColor = '#a0b5bb';
+            '#a50026',
+            '#d73027',
+            '#f46d43',
+            '#fdae61',
+            '#fee08b',
+            '#d9ef8b',
+            '#a6d96a',
+            '#66bd63',
+            '#1a9850',
+            '#006837',
+        ];
+        // defColor = '#a0b5bb';
+        defColor = "grey";
 
         getColor = d3.scale.quantize().domain([100,0]).range(colors);
 
@@ -96,21 +109,11 @@ window.onload = function () {
     }
 
     function addLegend() {
-        var lw = 10, lh = 100,
-            lpad = 10,
-            lgrade = [
-                [84, 100],
-                [50, 83],
-                [42, 49],
-                [34, 41],
-                [26, 33],
-                [18, 25],
-                [0, 17],
-                ];
+        var lw = 200, lh = 10,  // legend width, height
+            lpad = 10,  // legend padding
+            lcw = lw / 10;  // legend category width
 
         var legend = svg.append("g")
-            .style("stroke", "white")
-            .style("fill-stroke", "2px")
             .attr("transform", "translate(" + (width+(lpad-width)) + "," + (height-(lh+lpad)) + ")");
 
         legend.append("rect")
@@ -118,12 +121,14 @@ window.onload = function () {
             .attr("height", lh)
             .style("fill", "white");
 
-        var lcolors = legend.append("g");  // TODO: need transform traslate
-        for (i = 0; i < lgrade.length; i++) { 
+        var lcolors = legend.append("g")
+            .style("fill", defColor);
+
+        for (i = 0; i < 10; i++) { 
             lcolors.append("rect")
-                .attr("width", 10)
-                .attr("height", lgrade[i][1] - lgrade[i][0])
-                .attr("y", lgrade[i][0])
+                .attr("height", 10)
+                .attr("width", lcw)
+                .attr("x", i * lcw)
                 .style("fill", colors[i]);
         }
     }
