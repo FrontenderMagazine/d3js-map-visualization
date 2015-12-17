@@ -1,5 +1,5 @@
 window.onload = function () {
-    var svg, defColor, colorSet, path, attributeArray = [],
+    var width, height, svg, defColor, colorSet, path, attributeArray = [],
         currentAttribute = 0,
         playing = false;
 
@@ -9,14 +9,13 @@ window.onload = function () {
     }
 
     function setMap() {
-        var width = 818,
-            height = 600;
+        width = 818, height = 600;
 
         svg = d3.select('#map').append('svg')
             .attr('width', width)
             .attr('height', height);
 
-        colorsTheGuardian = [
+        colors = [ // theguardian
             "#ca2345",
             "#ed3d61",
             "#f58680",
@@ -24,15 +23,15 @@ window.onload = function () {
             "#daeac1",
             "#8ac7cd",
             "#39a4d8"];
-        colors = [
-            '#990000',
-            '#d7301f',
-            '#ef6548',
-            '#fc8d59',
-            '#fdbb84',
-            '#fdd49e',
-            '#fef0d9',
-            ];
+        // colors = [
+        //     '#990000',
+        //     '#d7301f',
+        //     '#ef6548',
+        //     '#fc8d59',
+        //     '#fdbb84',
+        //     '#fdd49e',
+        //     '#fef0d9',
+        //     ];
         defColor = '#a0b5bb';
 
         // получение GeoJSON из TopoJSON (TopoJSON -> GeoJSON)
@@ -93,6 +92,39 @@ window.onload = function () {
             .await(processData);  // обработка загруженных данных
     }
 
+    function addLegend() {
+        var lw = 10, lh = 100,
+            lpad = 10,
+            lgrade = [
+                [84, 100],
+                [50, 83],
+                [42, 49],
+                [34, 41],
+                [26, 33],
+                [18, 25],
+                [0, 17],
+                ];
+
+        var legend = svg.append("g")
+            .style("stroke", "white")
+            .style("fill-stroke", "2px")
+            .attr("transform", "translate(" + (width+(lpad-width)) + "," + (height-(lh+lpad)) + ")");
+
+        legend.append("rect")
+            .attr("width", lw)
+            .attr("height", lh)
+            .style("fill", "white");
+
+        var lcolors = legend.append("g");  // TODO: need transform traslate
+        for (i = 0; i < lgrade.length; i++) { 
+            lcolors.append("rect")
+                .attr("width", 10)
+                .attr("height", lgrade[i][1] - lgrade[i][0])
+                .attr("y", lgrade[i][0])
+                .style("fill", colors[i]);
+        }
+    }
+
     function processData(error, worldmap, countryData) {
         world = topojson.feature(worldmap, worldmap.objects.world)
         var countries = world.features;
@@ -117,7 +149,8 @@ window.onload = function () {
     }
 
     function drawMap(world) {
-        svg.selectAll(".country")
+        var map = svg.append("g");
+        map.selectAll(".country")
             .data(world.features)
             .enter().append("path")
             .attr("class", "country")
@@ -129,6 +162,8 @@ window.onload = function () {
             .style('fill', function(d) {
                 return getColor(d.properties[attributeArray[currentAttribute]]);
             });
+
+        addLegend();
     }
 
     function getColor(n) {
