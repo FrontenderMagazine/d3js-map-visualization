@@ -1,8 +1,8 @@
 svg {
-	background: #2b444c;
-  	border:solid black 1px;
+    background: #234c75;
+    border:solid black 1px;
 }
 .country {
-    stroke: white;
-    stroke-width: 0.5;
+    stroke: black;
+    stroke-width: 0.1;
 }

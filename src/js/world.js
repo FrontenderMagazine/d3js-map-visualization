@@ -2,7 +2,9 @@ window.onload = function () {
     var width, height, svg, path, attributeArray = [],
         colors, defColor, getColor,
         currentAttribute = 0,
-        playing = false;
+        currentYear = 1993,
+        playing = false,
+        slider;
 
     function init() {
         setMap();
@@ -16,23 +18,6 @@ window.onload = function () {
             .attr('width', width)
             .attr('height', height);
 
-        // colors = [ // theguardian
-        //     "#ca2345",
-        //     "#ed3d61",
-        //     "#f58680",
-        //     "#fdd09e",
-        //     "#daeac1",
-        //     "#8ac7cd",
-        //     "#39a4d8"];
-        // colors = [
-        //     '#990000',
-        //     '#d7301f',
-        //     '#ef6548',
-        //     '#fc8d59',
-        //     '#fdbb84',
-        //     '#fdd49e',
-        //     '#fef0d9',
-        //     ];
         colors = [
             '#a50026',
             '#d73027',
@@ -45,14 +30,10 @@ window.onload = function () {
             '#1a9850',
             '#006837',
         ];
-        // defColor = '#a0b5bb';
-        defColor = "grey";
+        defColor = "white";
 
         getColor = d3.scale.quantize().domain([100,0]).range(colors);
 
-        // получение GeoJSON из TopoJSON (TopoJSON -> GeoJSON)
-        // var world = topojson.feature(worldmap, worldmap.objects.world);
-        
         /* Заготовки различных проекций */
         // Получаем определение одной из проекций
         var mercator = d3.geo.mercator()
@@ -79,31 +60,13 @@ window.onload = function () {
         
         // Определяем генератор пути (path) по конкретной проекции
         path = d3.geo.path().projection(miller);
-        
-        /* Отрисовка контура всего мира */
-        // svg.append("path")
-        //   .datum(world)  // Передаем GeoJSON
-        //   .attr("class", "world")
-        //   .style("fill", "white")
-        //   .attr("d", path);  // Устанавливаем в атрибут "d" сгенерированные данные
-
-        // /* Отрисовка каждой страны отдельно */
-        // svg.selectAll(".country")
-        //     .data(world.features)
-        //   .enter().append("path")
-        //     .attr("class", "country")
-        //     // .attr("class", function(d) { return "subunit " + d.id; })
-        //     .style("fill", function(d) {
-        //         return colors[getRandomIntInclusive(0, 4)];
-        //     })
-        //     .attr("d", path);
 
         loadData();
     }
 
     function loadData() {
         queue()
-            .defer(d3.json, "topoworld.json")  // карту в topoJSON формате
+            .defer(d3.json, "data/topoworld.json")  // карту в topoJSON формате
             .defer(d3.csv, "data/freedom.csv")  // данные о свободе слова в cvs формате
             .await(processData);  // обработка загруженных данных
     }
@@ -131,9 +94,40 @@ window.onload = function () {
                 .attr("x", i * lcw)
                 .style("fill", colors[i]);
         }
+
+        // Initialize slider
+        var formatter = d3.format("04d");
+        var tickFormatter = function(d) {
+            return formatter(d);
+        }
+
+        slider = d3.slider().min('1993').max('2014')
+            .tickValues(['1993','2000','2007','2014'])
+            .stepValues(d3.range(1993,2015))
+            .tickFormat(tickFormatter);
+
+        svg.append("g")
+            .attr("height", 10)
+            .attr("width", 300)
+            .attr("id", "slider")
+            .attr("transform", "translate(" + (lpad + lw) + "," + (height - (5.5 * lpad)) + ")");
+            // .attr("transform", "translate(" + (lpad + lw) + "," + (height) + ")");
+        // Render the slider in the div
+        d3.select('#slider').call(slider);
+        var dragBehaviour = d3.behavior.drag();
+        dragBehaviour.on("drag", function(d){
+            var pos = d3.event.x;
+            slider.move(pos+25);
+            currentYear = slider.value();
+            sequenceMapByYear();
+            currentAttribute = attributeArray.indexOf(currentYear.toString());
+            d3.select('#clock').html(attributeArray[currentAttribute]);
+        });
+        svg.selectAll(".dragger").call(dragBehaviour);
     }
 
     function processData(error, worldmap, countryData) {
+        // получение GeoJSON из TopoJSON (TopoJSON -> GeoJSON)
         world = topojson.feature(worldmap, worldmap.objects.world)
         var countries = world.features;
         
@@ -186,6 +180,7 @@ window.onload = function () {
                         currentAttribute = 0;
                     }
                     sequenceMap();
+                    slider.setValue(attributeArray[currentAttribute]);
                     d3.select('#clock').html(attributeArray[currentAttribute]);
                 }, 1000);
             
@@ -204,6 +199,15 @@ window.onload = function () {
             .duration(0)
             .style('fill', function(d) {
                 color = getColor(d.properties[attributeArray[currentAttribute]]);
+                return color ? color : defColor;
+            });
+    }
+
+    function sequenceMapByYear() {
+        d3.selectAll('.country').transition()
+            .duration(0)
+            .style('fill', function(d) {
+                color = getColor(d.properties[currentYear]);
                 return color ? color : defColor;
             });
     }
