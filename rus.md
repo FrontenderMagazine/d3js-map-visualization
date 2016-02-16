@@ -6,68 +6,78 @@
 Для тех кто не слышал про d3.js, напонмню, что это библиотека, имеющая широкий
 спектр преминения обладающая большой гибкостью в области визуализации данных.
 
+В этой статье я хотел бы пошагово разьяснить как сделать простую визуализацию на географической карте использую связку d3.js и TopoJSON. Будут затронуты вопросы конвертации данных и их последующая загрузка, элементы стилизаци карты и интерактивность.
+Чтобы Вас заинетерсовать, покажу карту сразу:
+
+[step-final.html][1]
+
+На карте изображено в градация свободы прессы по странам и годам. Визуализация довольно проста, но поможет понять и освоить основные приемы работы с картами в d3.js.
+
 
 ## Где взять данные о картах?
 
-Карты:
-* Основной источник:
-  http://www.naturalearthdata.com/downloads/ (вся карта мира, с частичными 
-  регионами и областями, этим источником мы и будем пользоваться)
-* Альтернатива:
-  * http://gadm.org/country (с регионами областями)
-  * http://openlayers.org/
+Как мы знаем карта представляет из себя контуры, линии, границы государств, береговые линии и много другой геометрии. Для получения этой геометрии мы будем обращаться к shapefile формату, популярному формату географических файлов. Shapefile позволяет хранить точки, линии, полигоны и другие объекты. Также может содержать параметры типа температура, название, грубина и т.д. Hа самом деле shapefile представляет из себя набер из трех файлов *.shp, *.shx и *.dbf. Важно, чтобы эти три файла были расположены в одной директории.
+В сети существует множество источников shapefile данных, но для меня самым подходящим, понятным и удобным источником оказался ресурс [Natural Earth][2]. Он содержит карты территорий государств с границами (что нам и понадобиться), физические и даже растровые изображения поверхности планеты.
+В качестве альтернативы можно рассмотреть [Global Administrative Areas][3] и [OpenLayers3][4].
+Мы будем использовать контурную [карту][5] масштаба 1:110 метров.
 
-Данные о свободе прессы по странам с 1993 по 2014 включительно:
-  https://freedomhouse.org/report-types/freedom-press
+
+## Зависимости
+
+Нам понадобится несколько утилит для обработки и конвертации гео-данных:
+* [ogr2ogr][6]
+* [TopoJSON][7]
+
+Для topojson нам понадобится nodejs, к счастью он есть собраный пакет в репозитории.
+`$ sudo apt-get install nodejs`
+`$ sudo apt-get install npm`
+
+Далее устанавливаем TopoJSON:
+`$ sudo npm install -g topojson`
+Если установка бинарного пакета nodejs, то при установке возможна проблема в духе:
+`/usr/bin/env: node: No such file or directory`
+Для устранения достаточно прописать ссылку на nodejs:
+`$ ln -s /usr/bin/nodejs /usr/bin/node`
+
+Для установки ogr2ogr достаточно установить [Geospatial Data Abstraction Library][8] (GDAL), которая включает в себя нужную нам утилиту:
+`$ sudo apt-get install gdal-bin`
+Если Вы пользователь Mac, то установка происходит через brew:
+`$ brew install gdal`
 
 
 ## Конвертация данных
 
-<!-- Для тех у кого чистая система -->
-sudo aptitude install gdal-bin npm
-sudo npm install -g topojson
-which ogr2ogr
-which topojson
+Сейчас наша задача состоит в том, чтобы получить из shapefiles конечный TopoJSON файл. Для этого нам понадобиться сгенерировать промежуточный GeoJSON файл. На этапе генерации GeoJSON файла мы получаем возможность отфильтровать лишние, не нужные нам данный из shapefiles и что немаловажно привести значение координат к меньшему числу знаков после запятой, что критично в борьбе за скорость рендеринга, да и просто соращает размер файла примерно на 85%.
 
-<!-- Для тех у кого чистая система -->
-sudo aptitude install gdal-bin npm
-sudo npm install -g topojson
-which ogr2ogr
-which topojson
-<!-- This should print /usr/local/bin/ogr2ogr and /usr/local/bin/topojson. -->
-
-<!-- Проблемы с установкой node.js -->
-/usr/bin/env: node: No such file or directory
-For linux distributions which install package binaries to /usr/bin you can do:
-ln -s /usr/bin/nodejs /usr/bin/node
-
-Процесс конвертации данных схематично выглядит вот так:
+В конечном итоге, процесс конвертации данных схематично выглядит так:
 shapefiles -> GeoJSON -> TopoJSON
 
-Выбор всей карты мира с внутренними областями стран
-* Загружаем Admin 0 – Countries (http://www.naturalearthdata.com/downloads/10m-cultural-vectors/) и распаковываем
-* Конвертируем shapefiles данные в GeoJSON:
-  ogr2ogr -f GeoJSON world.json ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp
-* Конвертируем GeoJSON в TopoJSON
-  topojson -o topoworld.json --id-property SU_A3 world.json
+И так, приступим к конвертации. Нам нужно получить TopoJSON со странами мира.
+1. Загрузка и распаковка архива
+  На сайте [Natural Earth][2] в разделе "Downloads" выбираем "1:110m Cultural Vectors", в представленном списке выбираем раздел "Admin 0 – Countries" и жмём "Download countries". Очень советую зайти и посмотреть что вообще предлагается и какие форматы.
+2. Конвертируем shapefiles данные в GeoJSON
+  `$ ogr2ogr -f GeoJSON world.json ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp`
+  world.json - имя файла который будет создан по результату генерации.
+3. Конвертируем GeoJSON в TopoJSON
+  `$ topojson -o topoworld.json --id-property SU_A3 world.json`
+  topoworld.json - результирующий TopoJSON файл.
 
-Как по мне, тема работы с утилитами ogr2ogr и topojson достойна отдельной
-статьи, но ниже я приведу несколько вариантов их использования:
-* <!-- Converrting data -->
-* ogr2ogr -f GeoJSON -where "ADM0_A3 IN ('UKR')" subunits.json ne_10m_admin_0_map_subunits/ne_10m_admin_0_map_subunits.shp
-* ogr2ogr -f GeoJSON -where "ISO_A2 = 'UA' AND SCALERANK < 8" places.json ne_10m_populated_places/ne_10m_populated_places.shp
-* topojson -o ukr.json --id-property SU_A3 --properties name=NAME subunits.json places.json
-* topojson -o ukr.json --id-property SU_A3 --properties name=NAME_1 subunits.json places1.json
+Как по мне, тема работы с утилитами ogr2ogr и topojson достойна отдельной статьи. Поиграйтесь с различными фильтрами, например, отдельно Украину с границами областей можно получить написав что-то в духе:
+`$ ogr2ogr -f GeoJSON -where "ADM0_A3 IN ('UKR')" ukraine.json ne_10m_admin_0_map_subunits/ne_10m_admin_0_map_subunits.shp`
+`$ ogr2ogr -f GeoJSON -where "ISO_A2 = 'UA' AND SCALERANK < 8" ukr_obls.json ne_10m_populated_places/ne_10m_populated_places.shp`
+`$ topojson -o ukr.json --id-property SU_A3 --properties name=NAME ukraine.json ukr_obls.json`
 
 
 ## Загрузка данных
+
     d3.json("topoworld.json", function(error, worldmap) {
       // получение GeoJSON из TopoJSON (TopoJSON -> GeoJSON)
       var world = topojson.feature(worldmap, worldmap.objects.world);
     });
 
 
-## Создание svg объекта
+## Отображение карты
+
     var width = 960,
         height = 1160;
 
@@ -75,8 +85,7 @@ shapefiles -> GeoJSON -> TopoJSON
         .attr("width", width)
         .attr("height", height);
 
-
-## Для рендеринга карты необходимо еще 2 вещи:
+Для рендеринга карты необходимо еще 2 вещи:
 * projection
   Здесь примеры определения несколько видов проекций
 
@@ -99,9 +108,6 @@ shapefiles -> GeoJSON -> TopoJSON
 
     var path = d3.geo.path().projection(mercator);
 
-
-## Рендеринг карты
-Объект 
 Рендеринг карты можно осуществить несколькими способами:
 * Рендерин всей карты сразу. В этом случае передаем целый GeoJSON.
     svg.append("path")
@@ -120,10 +126,34 @@ shapefiles -> GeoJSON -> TopoJSON
         .attr("d", path);
 
 
-## Добавление цвета
+## Добавление стилей
+
+Добавить контур стран,
 http://colorbrewer2.org/
+
+
+## Отображение данных на карте, легенда
+
+Данные о свободе прессы по странам с 1993 по 2014 включительно:
+  https://freedomhouse.org/report-types/freedom-press
+
+
+## Анимация, слайдер
+
+
+## Интерактивность
 
 
 ## Links
 
 http://bost.ocks.org/mike/map/
+https://en.wikipedia.org/wiki/Shapefile
+
+[1]: step-final.html
+[2]: http://www.naturalearthdata.com
+[3]: http://gadm.org/country
+[4]: http://openlayers.org/
+[5]: http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip
+[6]: http://www.gdal.org/ogr2ogr.html
+[7]: https://github.com/mbostock/topojson
+[8]: http://www.gdal.org/
