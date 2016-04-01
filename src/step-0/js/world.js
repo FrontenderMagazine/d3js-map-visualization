@@ -1,14 +1,12 @@
 window.onload = function () {
-    var width, height, svg, path, attributeArray = [],
+    var width, height, svg, path, years = [],
         colors, defColor, getColor,
-        currentAttribute = 0,
-        currentYear = 1993,
+        currentYear = "1993",
         playing = false,
         slider;
 
     function init() {
         setMap();
-        animateMap();
     }
 
     function setMap() {
@@ -28,10 +26,8 @@ window.onload = function () {
             '#a6d96a',
             '#66bd63',
             '#1a9850',
-            '#006837',
-        ];
+            '#006837'];
         defColor = "white";
-
         getColor = d3.scale.quantize().domain([100,0]).range(colors);
 
         /* Заготовки различных проекций */
@@ -66,8 +62,8 @@ window.onload = function () {
 
     function loadData() {
         queue()
-            .defer(d3.json, "data/topoworld.json")  // карту в topoJSON формате
-            .defer(d3.csv, "data/freedom.csv")  // данные о свободе слова в cvs формате
+            .defer(d3.json, "../data/topoworld.json")  // карту в topoJSON формате
+            .defer(d3.csv, "../data/freedom.csv")  // данные о свободе слова в cvs формате
             .await(processData);  // обработка загруженных данных
     }
 
@@ -77,7 +73,8 @@ window.onload = function () {
             lcw = lw / 10;  // legend category width
 
         var legend = svg.append("g")
-            .attr("transform", "translate(" + (width+(lpad-width)) + "," + (height-(lh+lpad)) + ")");
+            .attr(
+                "transform","translate(" + (width+(lpad-width)) + "," + (height-(lh+lpad)) + ")");
 
         legend.append("rect")
             .attr("width", lw)
@@ -94,7 +91,30 @@ window.onload = function () {
                 .attr("x", i * lcw)
                 .style("fill", colors[i]);
         }
+    }
 
+    function addSlider() {
+        // Add year indicator
+        svg.append("text")
+            .attr("id", "year")
+            .attr("transform", "translate(409,550)")
+            .text(currentYear);
+        // Add slider button
+        var btn = svg.append("g").attr("class", "button").attr("id", "play")
+            .attr("transform", "translate(225,565)")
+            .attr("onmouseup", animateMap);
+        btn.append("rect")
+            .attr("x", 20).attr("y", 1)
+            .attr("rx", 5).attr("ry", 5)
+            .attr("width", 39)
+            .attr("height", 20)
+            .style("fill", "#234c75");
+        btn.append("text")
+            .attr("x", 25)
+            .attr("y", 16)
+            .style("fill", "white")
+            .text("Play");
+        
         // Initialize slider
         var formatter = d3.format("04d");
         var tickFormatter = function(d) {
@@ -107,28 +127,27 @@ window.onload = function () {
             .tickFormat(tickFormatter);
 
         svg.append("g")
-            .attr("height", 10)
             .attr("width", 300)
             .attr("id", "slider")
-            .attr("transform", "translate(" + (lpad + lw) + "," + (height - (5.5 * lpad)) + ")");
-            // .attr("transform", "translate(" + (lpad + lw) + "," + (height) + ")");
+            .attr("transform", "translate(273,545)");
         // Render the slider in the div
         d3.select('#slider').call(slider);
         var dragBehaviour = d3.behavior.drag();
+        
         dragBehaviour.on("drag", function(d){
             var pos = d3.event.x;
             slider.move(pos+25);
             currentYear = slider.value();
-            sequenceMapByYear();
-            currentAttribute = attributeArray.indexOf(currentYear.toString());
-            d3.select('#clock').html(attributeArray[currentAttribute]);
+            sequenceMap();
+            d3.select("#year").text(currentYear);
         });
+
         svg.selectAll(".dragger").call(dragBehaviour);
     }
 
-    function processData(error, worldmap, countryData) {
+    function processData(error, worldMap, countryData) {
         // получение GeoJSON из TopoJSON (TopoJSON -> GeoJSON)
-        world = topojson.feature(worldmap, worldmap.objects.world)
+        var world = topojson.feature(worldMap, worldMap.objects.world);
         var countries = world.features;
         
         for (var i in countries) {
@@ -136,8 +155,8 @@ window.onload = function () {
                 if (countries[i].id == countryData[j].ISO3166) {
                     for(var k in countryData[j]) {
                         if (k != 'Country' && k != 'ISO3166') {
-                            if(attributeArray.indexOf(k) == -1) { 
-                                attributeArray.push(k);
+                            if (years.indexOf(k) == -1) { 
+                                years.push(k);
                             }
                             countries[i].properties[k] = Number(countryData[j][k])
                         }
@@ -146,7 +165,7 @@ window.onload = function () {
                 }
             }
         }
-        d3.select('#clock').html(attributeArray[currentAttribute]);
+        d3.select("#year").text(currentYear);
         drawMap(world);
     }
 
@@ -160,13 +179,10 @@ window.onload = function () {
                 return "code_" + d.id; }, true)
             .attr("d", path);
 
-        d3.selectAll('.country')
-            .style('fill', function(d) {
-                color = getColor(d.properties[attributeArray[currentAttribute]]);
-                return color ? color : defColor;
-            });
+        sequenceMap();
 
         addLegend();
+        addSlider();
     }
 
     function animateMap() {
@@ -174,38 +190,28 @@ window.onload = function () {
         d3.select('#play').on('click', function() {
             if (playing == false) {
                 timer = setInterval(function() {
-                    if (currentAttribute < attributeArray.length - 1) {
-                        currentAttribute +=1;
+                    if (currentYear < years[years.length-1]) {
+                        currentYear = (parseInt(currentYear) + 1).toString()
                     } else {
-                        currentAttribute = 0;
+                        currentYear = years[0];
                     }
                     sequenceMap();
-                    slider.setValue(attributeArray[currentAttribute]);
-                    d3.select('#clock').html(attributeArray[currentAttribute]);
+                    slider.setValue(currentYear);
+                    d3.select("#year").text(currentYear);
                 }, 1000);
             
-                d3.select(this).html('stop');
+                d3.select(this).select('text').text('Stop');
                 playing = true;
             } else {
                 clearInterval(timer);
-                d3.select(this).html('play');
+                d3.select(this).select('text').text('Play');
                 playing = false;
             }
         });
     }
 
     function sequenceMap() {
-        d3.selectAll('.country').transition()
-            .duration(0)
-            .style('fill', function(d) {
-                color = getColor(d.properties[attributeArray[currentAttribute]]);
-                return color ? color : defColor;
-            });
-    }
-
-    function sequenceMapByYear() {
-        d3.selectAll('.country').transition()
-            .duration(0)
+        d3.selectAll('.country')
             .style('fill', function(d) {
                 color = getColor(d.properties[currentYear]);
                 return color ? color : defColor;

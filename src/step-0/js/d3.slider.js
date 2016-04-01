@@ -103,7 +103,7 @@ d3.slider = function module() {
             
             dragger.append("circle")
                 .attr("class", "dragger-inner")
-                .attr("r", 4)
+                .attr("r", 5)
                 .attr("transform", function(d) {
                     return "translate(0,6)";
                 });
@@ -115,7 +115,7 @@ d3.slider = function module() {
             dragger.call(dragBehaviour);
             
             // Move dragger on click 
-            svg.on("click", slider.click);
+            // svg.on("click", slider.click);
         });
     }
 

@@ -5,8 +5,11 @@
 }
 
 .d3slider-rect-range {
-  fill: #777;
-  stroke: none;
+  border: 1px solid black;
+  fill: white;
+  stroke: black;
+  stroke-width: 1;
+  shape-rendering: crispEdges;
 }
 
 .d3slider-rect-value {
@@ -66,7 +69,7 @@
 }
 
 .dragger-inner {
-  fill: #B30424;
+  fill: #234c75;
   stroke: none;
 }
 
