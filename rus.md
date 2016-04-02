@@ -4,7 +4,7 @@
 ## Что такое d3.js?
 
 Для тех кто не слышал про d3.js, напонмню, что это библиотека, имеющая широкий
-спектр преминения обладающая большой гибкостью в области визуализации данных.
+спектр пременения обладающая большой гибкостью в области визуализации данных.
 
 В этой статье я хотел бы пошагово разьяснить как сделать простую визуализацию на географической карте использую связку d3.js и TopoJSON. Будут затронуты вопросы конвертации данных и их последующая загрузка, элементы стилизаци карты и интерактивность.
 Чтобы Вас заинетерсовать, покажу карту сразу:
@@ -83,49 +83,50 @@
 ## Загрузка данных
 
 Приступим непосредственно к веб-разработке. Создадим html файл с такой структурой:
-
-    <html lang="en">
-      <head>
-        <meta charset="utf-8">
-        <script src="http://d3js.org/d3.v3.min.js"></script>
-        <script src="http://d3js.org/queue.v1.min.js"></script>
-      </head>
-      <body>
-      </body>
-    </html>
-
+```html
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://d3js.org/queue.v1.min.js"></script>
+  </head>
+  <body>
+  </body>
+</html>
+```
 И каркас скрипта в котором будет происходить загрузка и последующая работа с данными:
-
-    window.onload = function () {  
-      function init() {
-        setMap();
-      }
-      
-      function setMap() {
-        loadData();
-      }
-      
-      function loadData() {
-        queue()
-          .defer(d3.json, "https://github.com/FrontenderMagazine/d3js-map-visualization/blob/master/src/data/topoworld.json")  // карту в topoJSON формате
-          .defer(d3.csv, "https://github.com/FrontenderMagazine/d3js-map-visualization/blob/master/src/data/freedom.csv")  // данные о свободе слова в cvs формате
-          .await(processData);  // обработка загруженных данных
-      }
-      
-      function processData(error, worldMap, countryData) {
-        if (error)
-          return console.error(error);
-        console.log(worldMap);
-        console.log(countryData);
-      }
-      
-      init();
-    };
+```javascript
+window.onload = function () {
+  function init() {
+    setMap();
+  }
+  
+  function setMap() {
+    loadData();
+  }
+  
+  function loadData() {
+    queue()
+      .defer(d3.json, "https://raw.githubusercontent.com/FrontenderMagazine/d3js-map-visualization/master/src/data/topoworld.json")  // карту в topoJSON формате
+      .defer(d3.csv, "https://raw.githubusercontent.com/FrontenderMagazine/d3js-map-visualization/master/src/data/freedom.csv")  // данные о свободе слова в cvs формате
+      .await(processData);  // обработка загруженных данных
+  }
+  
+  function processData(error, worldMap, countryData) {
+    if (error)
+      return console.error(error);
+    console.log(worldMap);
+    console.log(countryData);
+  }
+  
+  init();
+};
+```
 
 Как Вы заметили мы использовали асинхранную библиотеку [d3-queue][10], предназначенную для работы с d3.js и не только. В этом место происходит ожидание загрузки файлов и передача загруженных данных функции `processData` в перменные `worldMap` и `countryData` соответственно.
 
 Загрузка данных в d3.js требует запуска локального сервера. Если вы приверженец node.js, то запуск производится при помощи [http-server][11]:  
-`http-server -p 8000 &`  
+`$ http-server -p 8000 &`  
 или используя python2:  
 `$ python2 -m SimpleHTTPServer 8000`  
 или python3:  
@@ -140,21 +141,22 @@
 
 Для рендеринга двумерной картинки на страницу браузера можно использовать 2 основных подхода: SVG и Canvas. Мы будем использовать SVG в виду того, что он позволяет применять CSS к своим элементам.
 Добавим в функцию `setMap` следующий код:
+```javascript
+width = 818, height = 600;
 
-    width = 818, height = 600;
-
-    svg = d3.select('#map').append('svg')
-        .attr('width', width)
-        .attr('height', height);
-
+svg = d3.select('#map').append('svg')
+    .attr('width', width)
+    .attr('height', height);
+```
 предварительно объявив в window.onload анонимной функции несколько переменных (они нам дальше понадобятся):
-
-    var width, height, svg, path;
-
+```javascript
+var width, height, svg, path;
+```
 так же добавим в `<body>`, элемент `<div id="map"></div>`, внутри него и будет помещен `svg` элемент. В `<head>` надо добавить еще несколько скриптов:
-
-    <script src="http://d3js.org/topojson.v1.min.js"></script>
-    <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+```html
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+```
 
 первый для работы с TopoJSON, другой с набором проекций для карт.
 
@@ -163,48 +165,52 @@
 * projection
   В метод `setMap` так же добавим, перед вызовом `loadData()`, определение проекции:
 
-        var miller = d3.geo.miller()
-            .scale(130)
-            .translate([width / 2, height / 2])
-            .precision(.1);
-
+  ```javascript
+  var miller = d3.geo.miller()
+      .scale(130)
+      .translate([width / 2, height / 2])
+      .precision(.1);
+  ```
   Существует множество видов проекций, на любой вкус и цвет. Одно из расширений d3.js предоставляет доступ к большому разнообразию [проекций][12].
 
 * path generator
   Для генератора пути задается определенная проекция
 
-      var path = d3.geo.path().projection(mercator);
-
+  ```javascript
+  var path = d3.geo.path().projection(mercator);
+  ```
   Здесь создается объект, который будет превращать геоданные в множество последовательных линий.
 
 Для рендеринга в функции `processData` из объекта `worldMap` (`countryData` пока не трогаем) который представляет из себя TopoJSON получаем GeoJSON (TopoJSON -> GeoJSON):
-
-    var world = topojson.feature(worldMap, worldMap.objects.world);
-
+  ```javascript
+  var world = topojson.feature(worldMap, worldMap.objects.world);
+  ```
 и полученный GeoJSON преедаем в `drawMap`.
 
 В drawMap рендеринг карты можно осуществить несколькими способами:
 * Рендерин всей карты сразу. В этом случае передаем целый GeoJSON.
 
-        svg.append("path")
-          .datum(world)
-          .attr("d", path);
-
+  ```javascript
+  svg.append("path")
+    .datum(world)
+    .attr("d", path);
+  ```
 * Рендерин карты по одной стране
   Этот случай предусматривает манипуляцию с каждым отдельно взятым полигоном
   страны.
 
-      var map = svg.append("g");
-      map.selectAll(".country")
-        .data(world.features)
-            .enter().append("path")
-        .attr("class", "country")
-        .attr("d", path);
-
+  ```javascript
+  var map = svg.append("g");
+  map.selectAll(".country")
+      .data(world.features)
+    .enter().append("path")
+      .attr("class", "country")
+      .attr("d", path);
+  ```
   Метод `data` всегда принимает список. В данном случае список стран с соответствующей геометрией.
 Мы будем пользоваться вторым случаем, это позволит нам осуществлять последующие манипуляции с каждой страной (цвет, границы и т.д.).
 
-После всех манипуляций должны получить карту с границами государств.
+После всех манипуляций должны получить карту с границами государств.  
 [step-2.html]
 
 
@@ -212,24 +218,24 @@
 
 Для отрисовки данных о свободе слова нам необходимо ассоциировать их с каждой страной и теперь наша задача добавить в GeoJSON (объект world) данные о свободе слова (объект `countryData`).
 Добавим данные код в функцию `processData` перед вызовом `drawMap(world)`:
-
-    var countries = world.features;
-    for (var i in countries) {
-        for (var j in countryData) {
-            if (countries[i].id == countryData[j].ISO3166) {
-                for(var k in countryData[j]) {
-                    if (k != 'Country' && k != 'ISO3166') {
-                        if (years.indexOf(k) == -1) { 
-                            years.push(k);
-                        }
-                        countries[i].properties[k] = Number(countryData[j][k])
+```javascript
+var countries = world.features;
+for (var i in countries) {
+    for (var j in countryData) {
+        if (countries[i].id == countryData[j].ISO3166) {
+            for(var k in countryData[j]) {
+                if (k != 'Country' && k != 'ISO3166') {
+                    if (years.indexOf(k) == -1) { 
+                        years.push(k);
                     }
+                    countries[i].properties[k] = Number(countryData[j][k])
                 }
-                break;
             }
+            break;
         }
     }
-
+}
+```
 Так же, рядом с переменными `width, height, svg, path`, объявим переменную `years = []`, в которую будут записаны года с "1993" по "2014".
 Теперь у атрибута `properties` каждой страны есть данные разложенные по годам.
 Данные лежат таким образом что каждому значению года соответствует одно условное значение от 0 до 100 (где, 0 - абсолютная свобода прессы, 100 - абсолютная цензура).
@@ -238,15 +244,16 @@
 ## Добавление цвета и стиля
 
 Добавим немного стилей для четкости границ стран, сейчас это больше артефакты полилиний стран, чем границы государств. Так же добавим "морской" фон для карты, применив цвет к `<svg>` элементу.
-
-    svg {
-        background: #234c75;
-        border:solid black 1px;
-    }
-    .country {
-        stroke: black;
-        stroke-width: 0.1;
-    }
+```css
+svg {
+    background: #234c75;
+    border:solid black 1px;
+}
+.country {
+    stroke: black;
+    stroke-width: 0.1;
+}
+```
 
 Если вы сейчас решили проверить промежуточный результат, то границ вы вовсе не увидете, потому что она сливается со цветом страны. Четкость границ будет видна при заполнении стран цветом.
 
@@ -254,72 +261,73 @@
 ![Рисунок][Набор цветов]
 
 В `setMap()` добавим цвета и генератор цвета `getColor`, который выдает цвета в зявисимости от значения от 0 до 100:
-
-    colors = [
-        '#a50026',
-        '#d73027',
-        '#f46d43',
-        '#fdae61',
-        '#fee08b',
-        '#d9ef8b',
-        '#a6d96a',
-        '#66bd63',
-        '#1a9850',
-        '#006837'];
-    defColor = "white";
-    getColor = d3.scale.quantize().domain([100,0]).range(colors);
-
+```javascript
+colors = [
+    '#a50026',
+    '#d73027',
+    '#f46d43',
+    '#fdae61',
+    '#fee08b',
+    '#d9ef8b',
+    '#a6d96a',
+    '#66bd63',
+    '#1a9850',
+    '#006837'];
+defColor = "white";
+getColor = d3.scale.quantize().domain([100,0]).range(colors);
+```
 а так же добавим эти переменные в блок с переменными:  
-
-    var width, height, svg, path,
-        years = [],
-        colors, defColor, getColor;
-
+```javascript
+var width, height, svg, path,
+    years = [],
+    colors, defColor, getColor;
+```
 Белый цвет был выбран дефолтным для стран у которых на текущай год не нашлось данных или метрика вовсе не производилась или там совсем нет прессы :)
 
 Добавим в блок с переменными `currentYear = "1993"` и произведем первую итерацию визуализации данных для текущего года. Для этого сделаем вызов `sequenceMap` в функции `drawMap`. Сама функция `sequenceMap` умеет, зная текущий год, перерисовать цвета всех стран и имеет такой вид:
-
-    function sequenceMap() {
-        d3.selectAll('.country')
-            .style('fill', function(d) {
-                color = getColor(d.properties[currentYear]);
-                return color ? color : defColor;
-            });
-    }
-
+```javascript
+function sequenceMap() {
+    d3.selectAll('.country')
+        .style('fill', function(d) {
+            color = getColor(d.properties[currentYear]);
+            return color ? color : defColor;
+        });
+}
+```
 здесь был осуществлен проход по странам и заполнение соответствующим цветом каждой страны, если данных не было найдено, то странна будет окрашена в белый цвет.
 
 
 ## Легенда карты
 
 Теперь на очереди добавление легенды карты. Добавим функцию addLegend(), которую нужно будет вызвать вконце функции drawMap:
+```javascript
+function addLegend() {
+    var lw = 200, lh = 10,  // legend width, height
+        lpad = 10,  // legend padding
+        lcw = lw / 10;  // legend category width
 
-    function addLegend() {
-        var lw = 200, lh = 10,  // legend width, height
-            lpad = 10,  // legend padding
-            lcw = lw / 10;  // legend category width
+    var legend = svg.append("g")
+        .attr(
+            "transform",
+            "translate(" + (width+(lpad-width)) + "," + (height-(lh+lpad)) + ")");
 
-        var legend = svg.append("g")
-            .attr(
-                "transform",
-                "translate(" + (width+(lpad-width)) + "," + (height-(lh+lpad)) + ")");
+    legend.append("rect")
+        .attr("width", lw)
+        .attr("height", lh)
+        .style("fill", "white");
 
-        legend.append("rect")
-            .attr("width", lw)
-            .attr("height", lh)
-            .style("fill", "white");
+    var lcolors = legend.append("g")
+        .style("fill", defColor);
 
-        var lcolors = legend.append("g")
-            .style("fill", defColor);
-
-        for (i = 0; i < 10; i++) { 
-            lcolors.append("rect")
-                .attr("height", 10)
-                .attr("width", lcw)
-                .attr("x", i * lcw)
-                .style("fill", colors[i]);
-        }
+    for (i = 0; i < 10; i++) { 
+        lcolors.append("rect")
+            .attr("height", 10)
+            .attr("width", lcw)
+            .attr("x", i * lcw)
+            .style("fill", colors[i]);
     }
+}
+```
 
 Легенда представляет собой `<g>` (group) елемент, в котором друг за другом расположены 10 цветных прямоугольников (`<rect>`), соответствующие градации свободы прессы от 0 до 100.
 
@@ -336,88 +344,88 @@
 * кнопка, позволяющая прокручивать слайдер циклично в автоматическом режиме
 
 Функция `addSlider` состоит из 3-х частей как описывалось выше. Её вызов должен произойти сразу после вызова `addLegend` в функции drawMap и выглядит так:
-
-    function addSlider() {
-        // Add year indicator
-        svg.append("text")
-            .attr("id", "year")
-            .attr("transform", "translate(409,550)")
-            .text(currentYear);
-        // Add slider button
-        var btn = svg.append("g").attr("class", "button").attr("id", "play")
-            .attr("transform", "translate(225,565)")
-            .attr("onmouseup", animateMap);
-        btn.append("rect")
-            .attr("x", 20).attr("y", 1)
-            .attr("rx", 5).attr("ry", 5)
-            .attr("width", 39)
-            .attr("height", 20)
-            .style("fill", "#234c75");
-        btn.append("text")
-            .attr("x", 25)
-            .attr("y", 16)
-            .style("fill", "white")
-            .text("Play");
-        
-        // Initialize slider
-        var formatter = d3.format("04d");
-        var tickFormatter = function(d) {
-            return formatter(d);
-        }
-
-        slider = d3.slider().min('1993').max('2014')
-            .tickValues(['1993','2000','2007','2014'])
-            .stepValues(d3.range(1993,2015))
-            .tickFormat(tickFormatter);
-
-        svg.append("g")
-            .attr("width", 300)
-            .attr("id", "slider")
-            .attr("transform", "translate(273,545)");
-        // Render the slider in the div
-        d3.select('#slider').call(slider);
-        var dragBehaviour = d3.behavior.drag();
-        
-        dragBehaviour.on("drag", function(d){
-            var pos = d3.event.x;
-            slider.move(pos+25);
-            currentYear = slider.value();
-            // sequenceMapByYear();
-            sequenceMap();
-            d3.select("#year").text(currentYear);
-        });
-
-        svg.selectAll(".dragger").call(dragBehaviour);
+```javascript
+function addSlider() {
+    // Add year indicator
+    svg.append("text")
+        .attr("id", "year")
+        .attr("transform", "translate(409,550)")
+        .text(currentYear);
+    // Add slider button
+    var btn = svg.append("g").attr("class", "button").attr("id", "play")
+        .attr("transform", "translate(225,565)")
+        .attr("onmouseup", animateMap);
+    btn.append("rect")
+        .attr("x", 20).attr("y", 1)
+        .attr("rx", 5).attr("ry", 5)
+        .attr("width", 39)
+        .attr("height", 20)
+        .style("fill", "#234c75");
+    btn.append("text")
+        .attr("x", 25)
+        .attr("y", 16)
+        .style("fill", "white")
+        .text("Play");
+    
+    // Initialize slider
+    var formatter = d3.format("04d");
+    var tickFormatter = function(d) {
+        return formatter(d);
     }
 
+    slider = d3.slider().min('1993').max('2014')
+        .tickValues(['1993','2000','2007','2014'])
+        .stepValues(d3.range(1993,2015))
+        .tickFormat(tickFormatter);
+
+    svg.append("g")
+        .attr("width", 300)
+        .attr("id", "slider")
+        .attr("transform", "translate(273,545)");
+    // Render the slider in the div
+    d3.select('#slider').call(slider);
+    var dragBehaviour = d3.behavior.drag();
+    
+    dragBehaviour.on("drag", function(d){
+        var pos = d3.event.x;
+        slider.move(pos+25);
+        currentYear = slider.value();
+        // sequenceMapByYear();
+        sequenceMap();
+        d3.select("#year").text(currentYear);
+    });
+
+    svg.selectAll(".dragger").call(dragBehaviour);
+}
+```
 Кнопка на событие "click" вызывает функцию `animateMap`, которая в свою очередь производит инкремент года и вызов `sequenceMap` для обновления карты, до тех пор пока не будет достигнут последний год в списке, после чего итерация начинается с первого года.
 А вот так выглядит функция `animateMap`:
-
-    function animateMap() {
-        var timer;
-        d3.select('#play').on('click', function() {
-            if (playing == false) {
-                timer = setInterval(function() {
-                    if (currentYear < years[years.length-1]) {
-                        currentYear = (parseInt(currentYear) + 1).toString()
-                    } else {
-                        currentYear = years[0];
-                    }
-                    sequenceMap();
-                    slider.setValue(currentYear);
-                    d3.select("#year").text(currentYear);
-                }, 1000);
-            
-                d3.select(this).select('text').text('Stop');
-                playing = true;
-            } else {
-                clearInterval(timer);
-                d3.select(this).select('text').text('Play');
-                playing = false;
-            }
-        });
-    }
-
+```javascript
+function animateMap() {
+    var timer;
+    d3.select('#play').on('click', function() {
+        if (playing == false) {
+            timer = setInterval(function() {
+                if (currentYear < years[years.length-1]) {
+                    currentYear = (parseInt(currentYear) + 1).toString()
+                } else {
+                    currentYear = years[0];
+                }
+                sequenceMap();
+                slider.setValue(currentYear);
+                d3.select("#year").text(currentYear);
+            }, 1000);
+        
+            d3.select(this).select('text').text('Stop');
+            playing = true;
+        } else {
+            clearInterval(timer);
+            d3.select(this).select('text').text('Play');
+            playing = false;
+        }
+    });
+}
+```
 Слайдер написан неким [sujeetsr][14] и был взять из [репозитория][15], немного адоптирован под наш проект. Соответствующие стили и скрипты нужно не забыть подключить.
 
 [step-4.html]
