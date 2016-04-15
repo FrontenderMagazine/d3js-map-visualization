@@ -1,9 +1,14 @@
 window.onload = function () {
-    var width, height, svg, path, years = [],
+    var width, height, svg, path,
+        years = [],
         colors, defColor, getColor,
         currentYear = "1993",
         playing = false,
-        slider;
+        slider,
+        margin = {top: 40, right: 15, bottom: 20, left: 40},  // for chart
+        chartWidth = 150,
+        chartHeight = 50,
+        tooltip, tooltipText, chartAreaPath, chartArea, chartLinePath, chartLine;
 
     function init() {
         setMap();
@@ -30,31 +35,11 @@ window.onload = function () {
         defColor = "white";
         getColor = d3.scale.quantize().domain([100,0]).range(colors);
 
-        /* Заготовки различных проекций */
-        // Получаем определение одной из проекций
-        var mercator = d3.geo.mercator()
-                        .scale(95)
-                        .translate([width / 2, height / 2]);
-        // Получаем определение одной из проекций
-        var orthographic = d3.geo.orthographic()
-                            .scale(275)
-                            .translate([width / 2, height / 2])
-                            .clipAngle(90)
-                            .precision(.1);
-        // Получаем определение одной из проекций
-        var albers = d3.geo.albers()
-                          .center([0, 55.4])
-                          .rotate([4.4, 0])
-                          .parallels([50, 60])
-                          .scale(100)
-                          .translate([width / 2, height / 2]);
-        // Получаем определение одной из проекций
         var miller = d3.geo.miller()
-                        .scale(130)
-                        .translate([width / 2, height / 2])
-                        .precision(.1);
-        
-        // Определяем генератор пути (path) по конкретной проекции
+          .scale(130)
+          .translate([width / 2, height / 2])
+          .precision(.1);
+
         path = d3.geo.path().projection(miller);
 
         loadData();
@@ -62,9 +47,9 @@ window.onload = function () {
 
     function loadData() {
         queue()
-            .defer(d3.json, "../data/topoworld.json")  // карту в topoJSON формате
-            .defer(d3.csv, "../data/freedom.csv")  // данные о свободе слова в cvs формате
-            .await(processData);  // обработка загруженных данных
+          .defer(d3.json, "../data/topoworld.json")
+          .defer(d3.csv, "../data/freedom.csv")
+          .await(processData);
     }
 
     function addLegend() {
@@ -74,7 +59,8 @@ window.onload = function () {
 
         var legend = svg.append("g")
             .attr(
-                "transform","translate(" + (width+(lpad-width)) + "," + (height-(lh+lpad)) + ")");
+                "transform",
+                "translate(" + (width+(lpad-width)) + "," + (height-(lh+lpad)) + ")");
 
         legend.append("rect")
             .attr("width", lw)
@@ -145,11 +131,71 @@ window.onload = function () {
         svg.selectAll(".dragger").call(dragBehaviour);
     }
 
+    function addToolTip() {
+        // Axis
+        var chartX = d3.time.scale()
+            .domain([1993, 2014])
+            .range([0, chartWidth]);
+        var chartY = d3.scale.linear()
+            .domain([0, 100])
+            .range([chartHeight, 0]);
+        var chartXAxis = d3.svg.axis()
+            .scale(chartX)
+            .orient("bottom")
+            .tickValues(chartX.domain())
+            .tickFormat(d3.format(".0f"));
+        var chartYAxis = d3.svg.axis()
+            .scale(chartY)
+            .orient("left")
+            .tickValues(chartY.domain())
+            .tickFormat(function(d) { return d + "%"; });
+
+        // Chart elements
+        chartLine = d3.svg.line()
+            .defined(function(d) { return d[1]; })
+            .x(function(d) { return chartX(d[0]); })
+            .y(function(d) { return chartY(d[1]); });
+        chartArea = d3.svg.area()
+            .defined(chartLine.defined())
+            .x(chartLine.x())
+            .y0(chartHeight)
+            .y1(chartLine.y());
+
+        // Create tooltip
+        tooltip = svg.append("g")
+            .attr("transform", "translate(" + -1000 + "," + -1000 + ")")
+            .attr("class", "tooltipchart");
+        // Create tooltip space
+        tooltip.append("rect")
+            .attr("width", chartWidth + margin.left + margin.right)
+            .attr("height", chartHeight + margin.top + margin.bottom);
+        // Create tooltip text (for country name)
+        tooltipText = tooltip
+            .append("text")
+            .attr("class", "text")
+            .attr("x", 15)
+            .attr("y", 25);
+
+        // Create chart space
+        var chart = tooltip.append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        // Add chart elements
+        chartAreaPath = chart.append("path").attr("class", "area");
+        chartLinePath = chart.append("path").attr("class", "line");
+        // Add chart axis
+        chart.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + chartHeight + ")")
+            .call(chartXAxis);
+        chart.append("g")
+            .attr("class", "y axis")
+            .call(chartYAxis);
+    }
+
     function processData(error, worldMap, countryData) {
-        // получение GeoJSON из TopoJSON (TopoJSON -> GeoJSON)
         var world = topojson.feature(worldMap, worldMap.objects.world);
-        var countries = world.features;
         
+        var countries = world.features;
         for (var i in countries) {
             for (var j in countryData) {
                 if (countries[i].id == countryData[j].ISO3166) {
@@ -161,28 +207,57 @@ window.onload = function () {
                             countries[i].properties[k] = Number(countryData[j][k])
                         }
                     }
+                    countries[i].country = countryData[j].Country;
                     break;
                 }
             }
         }
-        d3.select("#year").text(currentYear);
+
         drawMap(world);
     }
 
     function drawMap(world) {
+        var delta = 10,
+            tooltipWidth = margin.left + chartWidth + margin.right,
+            tooltipHeight = margin.top + chartHeight + margin.bottom;
         var map = svg.append("g");
         map.selectAll(".country")
             .data(world.features)
-            .enter().append("path")
+                .enter().append("path")
             .attr("class", "country")
-            .attr("id", function(d) {
-                return "code_" + d.id; }, true)
-            .attr("d", path);
+            .attr("d", path)
+            .on("mousemove", function(d) {
+                if (Object.keys(d.properties).length != 0) {
+                    var xy = d3.mouse(this)
+                        x = (xy[0] + delta),
+                        y = (xy[1] - delta - tooltipHeight);
+                    if (width - xy[0] < tooltipWidth) {
+                        x = xy[0] - tooltipWidth - delta;
+                    }
+                    if (xy[1] < tooltipHeight) {
+                        y = xy[1] + delta;
+                    }
+                    tooltip.attr("transform", "translate(" + x + "," + y + ")");
+                }
+            })
+            .on("mouseout", function(d) {
+                tooltip
+                    .attr("transform", "translate(" + (-1000) + "," + (-1000) + ")");
+                d3.select(this)
+                    .style("stroke-width", 0.1);
+            })
+            .on("mouseover", function(d) {
+                d3.select(this)
+                    .style("stroke-width", 1.5);
+                updateTooltipText(d.country);
+                updateTooltipChart(d.properties);
+            });
 
         sequenceMap();
 
         addLegend();
         addSlider();
+        addToolTip();
     }
 
     function animateMap() {
@@ -218,5 +293,31 @@ window.onload = function () {
             });
     }
 
+    function updateTooltipText(text) {
+        tooltipText.text(text);
+    }
+
+    function updateTooltipChart(data) {
+        var dur = 500,
+            data = dictToList(data);
+        chartAreaPath
+            .datum(data)
+                .transition().duration(dur)
+            .attr("d", chartArea);
+        chartLinePath
+            .datum(data)
+                .transition().duration(dur)
+            .attr("d", chartLine);
+    }
+
     init();
 };
+
+
+function dictToList(dict) {
+    var list = [];
+    for(var i in dict) {
+        list.push([i, dict[i]]);
+    }
+    return list;
+}

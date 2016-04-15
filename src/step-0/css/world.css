@@ -10,3 +10,30 @@ g.button:hover{
     opacity: 0.75;
     cursor: pointer;
 }
+
+.tooltipchart {
+    font: 10px sans-serif;
+}
+.tooltipchart .text {
+    font: 14px sans-serif;
+}
+.tooltipchart rect {
+    fill: white;
+    stroke-width: 1;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+.tooltipchart .axis path,
+.tooltipchart .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+.tooltipchart .area {
+    fill: steelblue;
+}
+.tooltipchart .line {
+  fill: none;
+  stroke: black;
+  stroke-width: 1px;
+}
