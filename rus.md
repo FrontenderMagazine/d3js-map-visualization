@@ -284,7 +284,8 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 После всех манипуляций должны получить карту с границами государств.
 
-<iframe src="src/step-2/index.html" width="100%" height="605" />
+<img class="mobile-image" src="img/map2.png" alt="Скриншот">
+<iframe class="desktop-demo" src="src/step-2/index.html" width="100%" height="605">
 
 
 ## Отображение данных на карте, легенда
@@ -429,7 +430,8 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 На данном этапе карта должна представлять из себя вот такую картинку:
 
-<iframe src="src/step-3/index.html" width="100%" height="605" />
+<img class="mobile-image" src="img/map3.png" alt="Скриншот">
+<iframe class="desktop-demo" src="src/step-3/index.html" width="100%" height="605">
 
 
 ## Слайдер
@@ -532,10 +534,11 @@ GeoJSON (TopoJSON -> GeoJSON):
 адаптирован под наш проект. Соответствующие стили и скрипты также нужно не
 забыть подключить.
 
-<iframe src="src/step-4/index.html" width="100%" height="605" />
+<img class="mobile-image" src="img/map4.png" alt="Скриншот">
+<iframe class="desktop-demo" src="src/step-4/index.html" width="100%" height="605">
 
 
-## Почти конец
+## Почти закончили
 
 Напоследок хотел добавить всплывающие подсказки для каждой страны. Подсказка
 представляет собой квадрат (`rect`), содержащий название страны и тренд в виде
@@ -553,7 +556,8 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 И финальная версия визуализации будет выглядеть так:
 
-<iframe src="src/step-0/index.html" width="100%" height="605" />
+<img class="mobile-image" src="img/map0.png" alt="Скриншот">
+<iframe class="desktop-demo" src="src/step-0/index.html" width="100%" height="605">
 
 Полные исходники прототипа можно посмотреть [здесь][21].
 
