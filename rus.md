@@ -555,7 +555,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 И финальная версия визуализации будет выглядеть так:
 
-![Скриншот][Финальный результат]
+<a href="src/step-0/index.html" target="_blank" rel="noopener noreferrer"><img class="exmaple" src="img/map0.png" alt="Скриншот"></a>
 <iframe class="example" src="src/step-0/index.html" width="100%" height="605"></iframe>
 
 Полные исходники прототипа можно посмотреть [здесь][21].
@@ -594,7 +594,3 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 [Набор цветов]: img/colors.png "Набор цветов"
 [Вывод в консоль]: img/console.png "Вывод в консоль"
-[Финальный результат]: img/map0.png "Финальный результат"
-[Шаг 4]: img/map4.png "Шаг 4"
-[Шаг 3]: img/map3.png "Шаг 3"
-[Шаг 2]: img/map2.png "Шаг 2"
