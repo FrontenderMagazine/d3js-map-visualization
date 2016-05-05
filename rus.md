@@ -284,10 +284,8 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 После всех манипуляций должны получить карту с границами государств.
 
-<section class="demo">
-    <img src="img/map2.png" alt="Скриншот"/>
-    <iframe src="src/step-2/index.html" width="100%" height="605"/>
-</section>
+![Скриншот][Шаг 2]
+<iframe class="example" src="src/step-2/index.html" width="100%" height="605"/>
 
 
 ## Отображение данных на карте, легенда
@@ -432,10 +430,8 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 На данном этапе карта должна представлять из себя вот такую картинку:
 
-<section class="demo">
-    <img src="img/map3.png" alt="Скриншот"/>
-    <iframe src="src/step-3/index.html" width="100%" height="605"/>
-</section>
+![Скриншот][Шаг 3]
+<iframe class="example" src="src/step-3/index.html" width="100%" height="605"/>
 
 
 ## Слайдер
@@ -538,10 +534,8 @@ GeoJSON (TopoJSON -> GeoJSON):
 адаптирован под наш проект. Соответствующие стили и скрипты также нужно не
 забыть подключить.
 
-<section class="demo">
-    <img src="img/map4.png" alt="Скриншот"/>
-    <iframe src="src/step-4/index.html" width="100%" height="605"/>
-</section>
+![Скриншот][Шаг 4]
+<iframe class="example" src="src/step-4/index.html" width="100%" height="605"/>
 
 
 ## Почти закончили
@@ -562,10 +556,9 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 И финальная версия визуализации будет выглядеть так:
 
-<section class="demo">
-    <img src="img/map0.png" alt="Скриншот"/>
-    <iframe src="src/step-0/index.html" width="100%" height="605"/>
-</section>
+![Скриншот][Финальный результат]
+<iframe class="example" src="src/step-0/index.html" width="100%" height="605"/>
+
 
 Полные исходники прототипа можно посмотреть [здесь][21].
 
@@ -603,3 +596,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 [Набор цветов]: img/colors.png "Набор цветов"
 [Вывод в консоль]: img/console.png "Вывод в консоль"
+[Финальный результат]: img/map0.png "Финальный результат"
+[Шаг 4]: img/map4.png "Шаг 4"
+[Шаг 3]: img/map3.png "Шаг 3"
+[Шаг 2]: img/map2.png "Шаг 2"
