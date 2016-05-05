@@ -92,11 +92,17 @@ TopoJSON файл. Для этого нам понадобиться сгене�
   "1:110m Cultural Vectors", в представленном списке выбираем раздел
   "Admin 0 – Countries" и жмём "Download countries". Очень советую зайти и
   посмотреть что вообще предлагается и какие форматы.
+
 2. Конвертируем shapefiles данные в GeoJSON
-  `$ ogr2ogr -f GeoJSON world.json ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp`
+
+            $ ogr2ogr -f GeoJSON world.json ne_10m_admin_0_countries/ne_10m_admin_0_countries.shp`
+  
   world.json - имя файла который будет создан по результату генерации.
+  
 3. Конвертируем GeoJSON в TopoJSON
-  `$ topojson -o topoworld.json --id-property SU_A3 world.json`
+            
+            $ topojson -o topoworld.json --id-property SU_A3 world.json
+
   topoworld.json - результирующий TopoJSON файл.
 
 Как по мне, тема работы с утилитами ogr2ogr и topojson достойна отдельной
