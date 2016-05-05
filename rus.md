@@ -283,7 +283,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 После всех манипуляций должны получить карту с границами государств.
 
-<a href="src/step-2/index.html" target="_blank" rel="noopener noreferrer"><img class="exmaple" src="img/map2.png" alt="Скриншот"></a>
+<a class="exmaple" href="src/step-2/index.html" target="_blank" rel="noopener noreferrer"><img src="img/map2.png" alt="Скриншот"></a>
 <iframe class="example" src="src/step-2/index.html" width="100%" height="605"></iframe>
 
 
@@ -429,7 +429,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 На данном этапе карта должна представлять из себя вот такую картинку:
 
-<a href="src/step-3/index.html" target="_blank" rel="noopener noreferrer"><img class="exmaple" src="img/map3.png" alt="Скриншот"></a>
+<a class="exmaple" href="src/step-3/index.html" target="_blank" rel="noopener noreferrer"><img src="img/map3.png" alt="Скриншот"></a>
 <iframe class="example" src="src/step-3/index.html" width="100%" height="605"></iframe>
 
 
@@ -533,7 +533,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 адаптирован под наш проект. Соответствующие стили и скрипты также нужно не
 забыть подключить.
 
-<a href="src/step-4/index.html" target="_blank" rel="noopener noreferrer"><img class="exmaple" src="img/map4.png" alt="Скриншот"></a>
+<a class="exmaple" href="src/step-4/index.html" target="_blank" rel="noopener noreferrer"><img src="img/map4.png" alt="Скриншот"></a>
 <iframe class="example" src="src/step-4/index.html" width="100%" height="605"></iframe>
 
 
@@ -555,7 +555,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 И финальная версия визуализации будет выглядеть так:
 
-<a href="src/step-0/index.html" target="_blank" rel="noopener noreferrer"><img class="exmaple" src="img/map0.png" alt="Скриншот"></a>
+<a class="exmaple" href="src/step-0/index.html" target="_blank" rel="noopener noreferrer"><img src="img/map0.png" alt="Скриншот"></a>
 <iframe class="example" src="src/step-0/index.html" width="100%" height="605"></iframe>
 
 Полные исходники прототипа можно посмотреть [здесь][21].
