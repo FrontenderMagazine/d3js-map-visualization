@@ -236,7 +236,7 @@ House][9]. Данные представляют собой условный и�
 * path generator
   Для генератора пути задается определенная проекция
 
-    var path = d3.geo.path().projection(mercator);
+            var path = d3.geo.path().projection(mercator);
 
   Здесь создается объект, который будет превращать геоданные в множество
   последовательных линий.
@@ -253,22 +253,22 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 * Рендерин всей карты сразу. В этом случае передаем целый GeoJSON.
 
-    svg.append("path")
-       .datum(world)
-       .attr("d", path);
+            svg.append("path")
+               .datum(world)
+               .attr("d", path);
 
 * Рендеринг карты по одной стране
   Этот случай предусматривает манипуляцию с каждым отдельно взятым полигоном
   страны.
 
 
-    var map = svg.append("g");
-    map.selectAll(".country")
-       .data(world.features)
-       .enter()
-       .append("path")
-       .attr("class", "country")
-       .attr("d", path);
+            var map = svg.append("g");
+            map.selectAll(".country")
+               .data(world.features)
+               .enter()
+               .append("path")
+               .attr("class", "country")
+               .attr("d", path);
 
   Метод `data` всегда принимает список. В данном случае список стран с
   соответствующей геометрией.
@@ -390,9 +390,9 @@ GeoJSON (TopoJSON -> GeoJSON):
 которую нужно будет вызвать вконце функции `drawMap`:
 
     function addLegend() {
-        var lw = 200, lh = 10,  // legend width, height
-            lpad = 10,  // legend padding
-            lcw = lw / 10;  // legend category width
+        var lw = 200, lh = 10,  // Ширина и высота легенды
+            lpad = 10,  // Отступ внутри легенды
+            lcw = lw / 10;  // Ширина категорий легенды
         
         var legend = svg.append("g")
             .attr(
@@ -440,12 +440,12 @@ GeoJSON (TopoJSON -> GeoJSON):
 так:
 
     function addSlider() {
-        // Add year indicator
+        // Добавляем индикатор года
         svg.append("text")
             .attr("id", "year")
             .attr("transform", "translate(409,550)")
             .text(currentYear);
-        // Add slider button
+        // Добавляем слайдер
         var btn = svg.append("g").attr("class", "button").attr("id", "play")
             .attr("transform", "translate(225,565)")
             .attr("onmouseup", animateMap);
@@ -461,7 +461,7 @@ GeoJSON (TopoJSON -> GeoJSON):
             .style("fill", "white")
             .text("Play");
       
-        // Initialize slider
+        // Инициализируем слайдер
         var formatter = d3.format("04d");
         var tickFormatter = function(d) {
             return formatter(d);
@@ -476,7 +476,7 @@ GeoJSON (TopoJSON -> GeoJSON):
             .attr("width", 300)
             .attr("id", "slider")
             .attr("transform", "translate(273,545)");
-        // Render the slider in the div
+        // Рендерим слайдер в div
         d3.select('#slider').call(slider);
         var dragBehaviour = d3.behavior.drag();
      
@@ -535,12 +535,14 @@ GeoJSON (TopoJSON -> GeoJSON):
 представляет собой квадрат (`rect`), содержащий название страны и тренд в виде
 графика индекса свободы слова за весь период по отдельно взятой стране.
 Для работы с подсказкой были задействованы такие элементы d3.js, svg и техники:
+
 * [axis][16]
 * [area][17]
 * line
 * области с пропущенными данными ([area with missing data][18])
 * [паттерн][19] обновления данных с переходами
 * события мыши (mousemove, mouseover, mouseout)
+
 Так же дополнительные материалы по картам можно прочитать [здесь][20].
 
 И финальная версия визуализации будет выглядеть так:
