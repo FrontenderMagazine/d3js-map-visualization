@@ -283,9 +283,8 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 После всех манипуляций должны получить карту с границами государств.
 
-<iframe class="example" src="src/step-2/index.html" width="100%" height="605">
 ![Скриншот][Шаг 2]
-</iframe>
+<iframe class="example" src="src/step-2/index.html" width="100%" height="605"></iframe>
 
 
 ## Отображение данных на карте, легенда
