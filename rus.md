@@ -267,7 +267,6 @@ GeoJSON (TopoJSON -> GeoJSON):
   Этот случай предусматривает манипуляцию с каждым отдельно взятым полигоном
   страны.
 
-
             var map = svg.append("g");
             map.selectAll(".country")
                .data(world.features)
@@ -284,8 +283,9 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 После всех манипуляций должны получить карту с границами государств.
 
+<iframe class="example" src="src/step-2/index.html" width="100%" height="605">
 ![Скриншот][Шаг 2]
-<iframe class="example" src="src/step-2/index.html" width="100%" height="605"/>
+</iframe>
 
 
 ## Отображение данных на карте, легенда
@@ -431,7 +431,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 На данном этапе карта должна представлять из себя вот такую картинку:
 
 ![Скриншот][Шаг 3]
-<iframe class="example" src="src/step-3/index.html" width="100%" height="605"/>
+<iframe class="example" src="src/step-3/index.html" width="100%" height="605"></iframe>
 
 
 ## Слайдер
@@ -535,7 +535,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 забыть подключить.
 
 ![Скриншот][Шаг 4]
-<iframe class="example" src="src/step-4/index.html" width="100%" height="605"/>
+<iframe class="example" src="src/step-4/index.html" width="100%" height="605"></iframe>
 
 
 ## Почти закончили
@@ -557,8 +557,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 И финальная версия визуализации будет выглядеть так:
 
 ![Скриншот][Финальный результат]
-<iframe class="example" src="src/step-0/index.html" width="100%" height="605"/>
-
+<iframe class="example" src="src/step-0/index.html" width="100%" height="605"></iframe>
 
 Полные исходники прототипа можно посмотреть [здесь][21].
 
