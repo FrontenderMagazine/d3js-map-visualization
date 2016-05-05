@@ -587,7 +587,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 [19]: https://bl.ocks.org/mbostock/3808234
 [20]: http://bost.ocks.org/mike/map/
 [21]: https://github.com/FrontenderMagazine/d3js-map-visualization/tree/master/src/step-0
-[22]: src/step-4/index.html
+[22]: src/step-1/index.html
 
 [Набор цветов]: img/colors.png "Набор цветов"
 [Вывод в консоль]: img/console.png "Вывод в консоль"
