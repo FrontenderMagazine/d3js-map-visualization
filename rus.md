@@ -283,7 +283,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 После всех манипуляций должны получить карту с границами государств.
 
-![Скриншот][Шаг 2]
+<a href="src/step-2/index.html" target="_blank" rel="noopener noreferrer"><img class="exmaple" src="img/map2.png" alt="Скриншот"></a>
 <iframe class="example" src="src/step-2/index.html" width="100%" height="605"></iframe>
 
 
@@ -429,7 +429,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 
 На данном этапе карта должна представлять из себя вот такую картинку:
 
-![Скриншот][Шаг 3]
+<a href="src/step-3/index.html" target="_blank" rel="noopener noreferrer"><img class="exmaple" src="img/map3.png" alt="Скриншот"></a>
 <iframe class="example" src="src/step-3/index.html" width="100%" height="605"></iframe>
 
 
@@ -533,7 +533,7 @@ GeoJSON (TopoJSON -> GeoJSON):
 адаптирован под наш проект. Соответствующие стили и скрипты также нужно не
 забыть подключить.
 
-![Скриншот][Шаг 4]
+<a href="src/step-4/index.html" target="_blank" rel="noopener noreferrer"><img class="exmaple" src="img/map4.png" alt="Скриншот"></a>
 <iframe class="example" src="src/step-4/index.html" width="100%" height="605"></iframe>
 
 
