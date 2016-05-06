@@ -87,19 +87,25 @@ window.onload = function () {
             .text(currentYear);
         // Add slider button
         var btn = svg.append("g").attr("class", "button").attr("id", "play")
-            .attr("transform", "translate(225,565)")
+            .attr("transform", "translate(270,568)")
             .attr("onmouseup", animateMap);
-        btn.append("rect")
-            .attr("x", 20).attr("y", 1)
-            .attr("rx", 5).attr("ry", 5)
-            .attr("width", 39)
-            .attr("height", 20)
+        var playBtn = btn.append("g")
+            .attr("class", "play")
+            .attr("display", "inline");
+        playBtn.append("path")
+            .attr("d", "M0 0 L0 16 L12 8 Z")
             .style("fill", "#234c75");
-        btn.append("text")
-            .attr("x", 25)
-            .attr("y", 16)
-            .style("fill", "white")
-            .text("Play");
+        var stopBtn = btn.append("g")
+            .attr("class", "stop")
+            .attr("display", "none");
+        stopBtn.append("path")
+            .attr("d", "m 0,0 0,16")
+            .attr("stroke", "#234c75")
+            .attr("stroke-width", 6);
+        stopBtn.append("path")
+            .attr("d", "m 8,0 0,16")
+            .attr("stroke", "#234c75")
+            .attr("stroke-width", 6);
         
         // Initialize slider
         var formatter = d3.format("04d");
@@ -275,11 +281,13 @@ window.onload = function () {
                     d3.select("#year").text(currentYear);
                 }, 1000);
             
-                d3.select(this).select('text').text('Stop');
+                d3.select(this).select('.play').attr('display', 'none');
+                d3.select(this).select('.stop').attr('display', 'inline');
                 playing = true;
             } else {
                 clearInterval(timer);
-                d3.select(this).select('text').text('Play');
+                d3.select(this).select('.play').attr('display', 'inline');
+                d3.select(this).select('.stop').attr('display', 'none');
                 playing = false;
             }
         });
