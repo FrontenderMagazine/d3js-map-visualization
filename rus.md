@@ -160,8 +160,7 @@ TopoJSON-файл. Для этого нам понадобится сгенер�
       }
        
       function processData(error, worldMap, countryData) {
-        if (error)
-          return console.error(error);
+        if (error) return console.error(error);
         console.log(worldMap);
         console.log(countryData);
       }
