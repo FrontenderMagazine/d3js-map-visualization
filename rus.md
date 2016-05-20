@@ -246,7 +246,7 @@ TopoJSON-файл. Для этого нам понадобится сгенер�
 
 Для рендеринга в функции `processData` из объекта `worldMap` (`countryData`
 пока не трогаем), который представляет из себя TopoJSON, получаем
-GeoJSON (TopoJSON -> GeoJSON):
+GeoJSON (TopoJSON ⟶ GeoJSON):
 
     var world = topojson.feature(worldMap, worldMap.objects.world);
 
